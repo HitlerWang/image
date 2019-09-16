@@ -5,7 +5,6 @@ import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL']='3'
 
-sess = tf.InteractiveSession()
 def weight_variable(shape):
     initial = tf.truncated_normal(shape , stddev=0.1)
     return tf.Variable(initial)
@@ -19,10 +18,10 @@ def conv2d(x,W):
     return tf.nn.conv2d(x,W ,strides=[1,1,1,1] , padding='SAME')
 
 def max_pool_2(x):
-    return tf.nn.max_pool(x , ksize=[1,1,1,1],strides=[1,1,1,1] , padding='SAME')
+    return tf.nn.max_pool(x , ksize=[1,2,2,1],strides=[1,2,2,1] , padding='SAME')
 
 
-mnist = id.read_data_sets('/Users/wangshan/Desktop/data/study/minist/' , one_hot= True)
+mnist = id.read_data_sets('/Users/shanwang/Desktop/data/study/minist/' , one_hot= True)
 
 
 x =  tf.compat.v1.placeholder(tf.float32 , [None , 784])
@@ -59,20 +58,22 @@ y_conv = tf.nn.softmax(tf.matmul(h_fc1_drop , W_fc2) + b_fc2)
 
 cross_entropy = -tf.reduce_sum(y_*tf.log(y_conv))
 train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+
 correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(y_,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float32"))
 
-sess.run(tf.initialize_all_variables())
 
-for i in range(20000):
-    batch_x , batch_y = mnist.train.next_batch(50)
-    # if i%100 ==0:
-    #     train_accuracy = accuracy.eval(feed_dict={
-    #         x: batch_x, y_: batch_y, keep_prob: 1.0})
-    #     print("step %d, training accuracy %g"%(i, train_accuracy))
-    train_step.run(feed_dict={x: batch_x, y_: batch_y, keep_prob: 0.5})
+with tf.compat.v1.Session() as sess:
+    sess.run(tf.initialize_all_variables())
+    for i in range(20000):
+        batch_x , batch_y = mnist.train.next_batch(50)
+        if i%100 ==0:
+            train_accuracy = accuracy.eval(feed_dict={
+                x: batch_x, y_: batch_y, keep_prob: 1.0})
+            print("step %d, training accuracy %g"%(i, train_accuracy))
+        sess.run(train_step , feed_dict={x: batch_x, y_: batch_y, keep_prob: 0.5})
 
-    print("test accuracy %g" % accuracy.eval(feed_dict={
-        x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0}))
+        print("test accuracy %g" % accuracy.eval(feed_dict={
+            x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0}))
 
 

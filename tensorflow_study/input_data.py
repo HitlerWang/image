@@ -202,5 +202,5 @@ def read_data_sets(train_dir, fake_data=False, one_hot=False, dtype=tf.float32):
     return data_sets
 
 
-mnist = read_data_sets('/Users/wangshan/Desktop/data/study/minist/', one_hot=True)
+mnist = read_data_sets('/Users/shanwang/Desktop/data/study/minist/', one_hot=True)
 print(type(mnist))

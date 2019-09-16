@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow_study.input_data as id
 
 
-mnist = id.read_data_sets('/Users/wangshan/Desktop/data/study/minist/' , one_hot= True)
+mnist = id.read_data_sets('/Users/shanwang/Desktop/data/study/minist/' , one_hot= True)
 
 # tr_x , tr_y = mnist.train.next_batch(100)
 # print(tr_y[0])
