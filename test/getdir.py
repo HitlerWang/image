@@ -1,12 +1,17 @@
 
-import os
-path = '/Users/wangshan/Desktop/image/xia/'
-flag = os.path.isdir(path)
+import os,shutil
+basePath = "/Users/shanwang/Desktop/data/xia/use/"
+big = "big"
+middle = "middle"
+small = "small"
+train = "train"
+test = "test"
+
+
 i = 0
-if flag:
-    for s in os.listdir(path):
-        if 'jpg' in s:
-            os.rename(path + s , path + 'xia_' + str(i)+'.jpg' )
-            # print(path + 'xia_' + str(i)+'.jpg' )
-            i = i + 1
-print(flag)
+for s in os.listdir(basePath + "/" + train + "/" + middle):
+    if i > 1500:
+        shutil.move(basePath + "/" + train + "/" + middle + "/"+s , basePath + "/" + test + "/" + middle)
+        # exit()
+    i = i + 1
+print(i)
