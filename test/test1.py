@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import cv2
 import time
 
-img = cv2.imread('/Users/wangshan/Desktop/image/xia/xia_8.jpg',1)
+img = cv2.imread('/Users/shanwang/Desktop/data/xia/use/train/small/IMG_20191012_132537.jpg',1)
 img_gray = cv2.cvtColor(img , cv2.COLOR_BGR2GRAY)
 
 ret , thresh = cv2.threshold(img_gray , 50 , 255 , cv2.THRESH_BINARY_INV)
