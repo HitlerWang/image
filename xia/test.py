@@ -1,6 +1,10 @@
 import cv2
 import os,shutil
 import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
+
+
 basePath = "/Users/shanwang/Desktop/data/xia/use/"
 big = "big/"
 middle = "middle/"
@@ -80,8 +84,22 @@ def test():
         cv2.destroyAllWindows()
 
 
+def convertTensor():
+    a = np.array([[1,2,3],[4,5,6],[7,8,9]])
+    print(a)
+    b = tf.constant(a)
+    with tf.Session() as sess:
+        print(b)
+        for x in b.eval():
+            print(x)
+        print("a",a)
+        tensor_a = tf.convert_to_tensor(a)
+        print(tensor_a)
+
+
 if __name__ == '__main__':
     # getAllImgPath(trainPath + small)
     # test()
-    hist(bigImgPath)
+    # hist(bigImgPath)
     # thresd(smallPath)
+    convertTensor()
