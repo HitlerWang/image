@@ -61,7 +61,7 @@ img = sliceReadImage(imgQueue)
 
 labels = tf.one_hot(labelQueue , 3)
 
-x , y_ = tf.train.batch([img , labels] , batch_size=10)
+x , y_ = tf.train.batch([img , labels] , batch_size=2)
 
 # x = tf.train.batch([img] , batch_size=100)
 
@@ -81,15 +81,22 @@ train_step = tf.compat.v1.train.GradientDescentOptimizer(0.01).minimize(cross_en
 localInit = tf.compat.v1.local_variables_initializer()
 globalInit = tf.compat.v1.global_variables_initializer()
 
+tf.summary.scalar("loss",cross_entropy)
+# for item in tf.trainable_variables():
+#     tf.summary.histogram(item.name , item)
+
+summary_op = tf.summary.merge_all()
+
 with tf.compat.v1.Session() as sess:
     sess.run(localInit)
     sess.run(globalInit)
+    log_write = tf.summary.FileWriter("/Users/shanwang/Desktop/data/study/test/log" , sess.graph)
     coorid = tf.train.Coordinator()
     thread = tf.train.start_queue_runners(sess = sess , coord=coorid)
     try:
         while not coorid.should_stop():
-            imgs = sess.run(train_step)
-
+            imgs , summary= sess.run([train_step,summary_op])
+            log_write.add_summary(summary)
             correct_prediction = tf.equal(tf.argmax(y , 1) , tf.argmax(y_ , 1))
             accuracy = tf.reduce_mean(tf.cast(correct_prediction , tf.float32))
             print(sess.run(accuracy ))
