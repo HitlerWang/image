@@ -1,9 +1,14 @@
 import cv2
 import os,shutil
+import random
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 
+maxwidth_path = ""
+maxheight_path = ""
+max_width = 0
+max_hight = 0
 
 basePath = "/Users/shanwang/Desktop/data/xia/use/"
 big = "big/"
@@ -23,9 +28,12 @@ middlePath = basePath + train + middle + img2
 smallPath = basePath + train + small + img3
 
 def getAllImgPath(path):
+    ret = []
     for item in os.listdir(path):
-        img = cv2.imread(path + item)
-        print(img[100,100])
+        if not item.endswith(".jpg"):
+            continue
+        ret.append(path + item)
+    return ret
 
 def hist(path):
     img = cv2.imread(path)
@@ -65,14 +73,9 @@ def thresd(path):
 
 
 def test():
-
     bigImg = cv2.imread(middlePath)
-
-
     print(bigImg[100,100])
-
     b, g, r = cv2.split(bigImg)
-
     print(b[100,100])
     print(g[100,100])
     print(r[100,100])
@@ -97,9 +100,72 @@ def convertTensor():
         print(tensor_a)
 
 
+def checkImg(path):
+    img = cv2.imread(path)
+    img_gray = cv2.cvtColor(img , cv2.COLOR_BGR2GRAY)
+    ret , thresh = cv2.threshold(img_gray , 50 , 255 , cv2.THRESH_BINARY_INV)
+    kernel = np.ones((10,10),np.uint8)
+    # img_dila = cv2.morphologyEx(thresh , cv2.MORPH_OPEN ,kernel= kernel)
+    img_dila = cv2.dilate(thresh , kernel= kernel , iterations= 1)
+    img_coun , img_contours = cv2.findContours(img_dila , cv2.RETR_EXTERNAL , cv2.CHAIN_APPROX_SIMPLE)
+    # img_res = cv2.drawContours(img , img_coun, -1 ,  (0,255,0 ) , 3)
+    contourArea = []
+    for item in range(len(img_coun)):
+        contourArea.append([item , cv2.contourArea(img_coun[item])/1])
+    def sortKey(elem):
+        return elem[1]
+    contourArea.sort(reverse=True ,key=sortKey)
+    x = 0
+    y  =0
+    w=0
+    h=0
+    for i in contourArea:
+        a=[]
+        for j in img_coun[i[0]]:
+            a.append(j)
+        x,y,w,h = cv2.boundingRect(np.array(a))
+        if x == 0 or y ==0 or x+w==3968 or y+h==2976:
+            continue
+        else:
+            break
+    print(x,y,w,h)
+    global max_width
+    global max_hight
+    global maxheight_path
+    global maxwidth_path
+    if w > max_width:
+        max_width = w
+        maxwidth_path = path
+    if h > max_hight:
+        max_hight = h
+        maxheight_path = path
+    if x ==0 or y==0:
+        print(path)
+    # img_lun = cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),30)
+    # cv2.namedWindow('gray_src' , 0)
+    # cv2.imshow('gray_src' , img_lun)
+    # k = cv2.waitKey(0)
+    # if k == 27:         # wait for ESC key to exit
+    #     cv2.destroyAllWindows()
+    # elif k == ord('s'): # wait for 's' key to save and exit
+    #     # cv2.imwrite('/Users/wangshan/Desktop/image/bb_bak.png', img_res)
+    #     cv2.destroyAllWindows()
+
+
+
 if __name__ == '__main__':
+    # rand = random.randint(1,1500)
+    # checkImg(getAllImgPath(trainPath + middle)[rand])
+    for item in getAllImgPath(trainPath + middle):
+        checkImg(item)
+    print("max_width : " ,max_width)
+    print("max_hight : " ,max_hight)
+    print("max_widthpath : " ,maxwidth_path)
+    print("max_hightpath : " ,maxheight_path)
+
     # getAllImgPath(trainPath + small)
     # test()
     # hist(bigImgPath)
     # thresd(smallPath)
-    convertTensor()
+    # convertTensor()
+
