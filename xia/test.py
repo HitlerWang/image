@@ -9,7 +9,7 @@ maxwidth_path = ""
 maxheight_path = ""
 max_width = 0
 max_hight = 0
-
+tempI = 0
 basePath = "/Users/shanwang/Desktop/data/xia/use/"
 big = "big/"
 middle = "middle/"
@@ -101,7 +101,9 @@ def convertTensor():
 
 
 def checkImg(path):
+    guifan = 2383
     img = cv2.imread(path)
+    height , width , _ = img.shape
     img_gray = cv2.cvtColor(img , cv2.COLOR_BGR2GRAY)
     ret , thresh = cv2.threshold(img_gray , 50 , 255 , cv2.THRESH_BINARY_INV)
     kernel = np.ones((10,10),np.uint8)
@@ -124,7 +126,8 @@ def checkImg(path):
         for j in img_coun[i[0]]:
             a.append(j)
         x,y,w,h = cv2.boundingRect(np.array(a))
-        if x == 0 or y ==0 or x+w==3968 or y+h==2976:
+        if x == 0 or y ==0 or y+h==height or x+w==width:
+            print(path)
             continue
         else:
             break
@@ -141,6 +144,15 @@ def checkImg(path):
         maxheight_path = path
     if x ==0 or y==0:
         print(path)
+    global tempI
+    tempI = tempI + 1
+    fileName = '1_' + str(tempI) + '.jpeg'
+    if x + guifan > width:
+        x = width - guifan
+    if y + guifan > height:
+        y = height - guifan
+    resImg = img[y:y+guifan ,x:x+guifan]
+    cv2.imwrite('/Users/shanwang/Desktop/data/xia/use/train/qiege/'+fileName,resImg)
     # img_lun = cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),30)
     # cv2.namedWindow('gray_src' , 0)
     # cv2.imshow('gray_src' , img_lun)
@@ -151,12 +163,30 @@ def checkImg(path):
     #     # cv2.imwrite('/Users/wangshan/Desktop/image/bb_bak.png', img_res)
     #     cv2.destroyAllWindows()
 
-
+def slipImg(path , x , y , w , h ):
+    # 读取要被切割的图片
+    img = cv2.imread(path)
+    # 要被切割的开始的像素的高度值
+    beH = y
+    # 要被切割的结束的像素的高度值
+    hEnd = y+h
+    # 要被切割的开始的像素的宽度值
+    beW = x
+    # 要被切割的结束的像素的宽度值
+    wLen = x+w
+    # 对图片进行切割
+    dstImg = img[beH:hEnd,beW:wLen]
+    # 展示切割好的图片
+    cv2.namedWindow('dstImg' , 0)
+    cv2.imshow("dstImg",dstImg)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     # rand = random.randint(1,1500)
-    # checkImg(getAllImgPath(trainPath + middle)[rand])
-    for item in getAllImgPath(trainPath + middle):
+    # slipImg("/Users/shanwang/Desktop/data/xia/use/train/middle/IMG_20190920_123211.jpg" , 1096,1673 ,1395,2170)
+    # checkImg("/Users/shanwang/Desktop/data/xia/use/train/middle/IMG_20190920_123211.jpg")
+    for item in getAllImgPath(trainPath + small):
         checkImg(item)
     print("max_width : " ,max_width)
     print("max_hight : " ,max_hight)

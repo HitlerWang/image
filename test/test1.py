@@ -5,7 +5,7 @@ import time
 
 
 # img = cv2.imread('/Users/shanwang/Desktop/aa.jpeg',1)
-img = cv2.imread('/Users/shanwang/Desktop/data/xia/use/train/middle/IMG_20190920_125220.jpg',1)
+img = cv2.imread('/Users/shanwang/Desktop/data/xia/use/train/middle/IMG_20190922_130546.jpg',1)
 print(img.shape)
 img_gray = cv2.cvtColor(img , cv2.COLOR_BGR2GRAY)
 

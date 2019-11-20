@@ -1,5 +1,6 @@
 import os
 import tensorflow as tf
+import io
 import numpy as np
 import tensorflow_study.input_data as id
 
@@ -29,6 +30,15 @@ def getAllPath(path , label):
         labelList.append(label)
 
 
+def getAllPathLabel(path):
+    for file in os.listdir(path):
+        if not file.endswith(".jpeg"):
+            print(path + file)
+            continue
+        pathList.append(path + file)
+        labels = file.split('_')
+        labelList.append(int(labels[0]))
+
 def loadImg(path_queue):
     reader = tf.WholeFileReader()
     key , value = reader.read(path_queue)
@@ -48,7 +58,7 @@ def sliceReadImage(path_queue):
 getAllPath(trainPath + big , 1)
 getAllPath(trainPath + middle , 2)
 getAllPath(trainPath + small , 3)
-
+# getAllPathLabel(trainPath + 'qiege/')
 imgString = tf.convert_to_tensor(pathList , dtype=tf.string)
 labelString = tf.convert_to_tensor(labelList , dtype=tf.int32)
 
@@ -61,19 +71,13 @@ img = sliceReadImage(imgQueue)
 
 labels = tf.one_hot(labelQueue , 3)
 
-x , y_ = tf.train.batch([img , labels] , batch_size=2)
-
-# x = tf.train.batch([img] , batch_size=100)
-
-
-# x =  tf.compat.v1.placeholder(tf.float32 , [None , paramsLen] , name='input')
+x , y_ = tf.train.batch([img , labels] , batch_size=150)
 
 W = tf.Variable(tf.zeros([paramsLen,3]))
 c = tf.Variable(tf.zeros([3]))
 y = tf.nn.softmax(tf.matmul(x,W) + c , name='output')
 
 
-# y_ = tf.compat.v1.placeholder(tf.float32 , [None , 3])
 cross_entropy = -tf.reduce_sum(y_*tf.math.log(y))
 
 train_step = tf.compat.v1.train.GradientDescentOptimizer(0.01).minimize(cross_entropy,name='aaa')
