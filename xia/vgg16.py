@@ -20,6 +20,8 @@ labelList = []
 
 paramsLen = 3968 * 2976
 
+# tf.compat.v1.enable_eager_execution()
+# print('Eager execution {}'.format(tf.executing_eagerly()))
 def getAllPath(path , label):
     for file in os.listdir(path):
         if not file.endswith(".jpg"):
@@ -45,11 +47,11 @@ def loadImg(path_queue):
     img = tf.image.resize_images(img , size=(size,size))
     return img
 
-def sliceReadImage(path_queue):
-    file_contents = tf.read_file(path_queue[0])
+def sliceReadImage(img , label):
+    file_contents = tf.io.read_file(img)
     img = tf.image.convert_image_dtype(tf.image.decode_jpeg(file_contents , channels=3) , dtype=tf.float32)
-    img = tf.image.resize_images(img , size=(size,size))
-    return img
+    img = tf.image.resize(img , size=(size,size))
+    return img , label
 
 
 
@@ -65,7 +67,7 @@ def init():
 
 
 def weight_variable(shape):
-    initial = tf.truncated_normal(shape , stddev=0.1)
+    initial = tf.random.truncated_normal(shape , stddev=0.1)
     return tf.Variable(initial)
 
 
@@ -75,19 +77,19 @@ def bias_variable(shape):
 
 
 def conv_layer(bottom ,w_conv, b_conv ,name):
-    with tf.variable_scope(name) as scope:
+    with tf.compat.v1.variable_scope(name) as scope:
         conv = tf.nn.conv2d(bottom , w_conv ,strides=[1,1,1,1] , padding='SAME')
         bias = tf.nn.bias_add(conv , b_conv)
         relu = tf.nn.relu(bias)
         return relu
 
 def max_pool(bias, name):
-    with tf.variable_scope(name) as scope:
-        pool = tf.nn.max_pool(bias , ksize=[1,2,2,1],strides=[1,2,2,1] , padding='SAME')
+    with tf.compat.v1.variable_scope(name) as scope:
+        pool = tf.nn.max_pool2d(bias , ksize=[1,2,2,1],strides=[1,2,2,1] , padding='SAME')
         return pool
 
 def fc_layer(bottom , resLen ,name):
-    with tf.variable_scope(name) as scope:
+    with tf.compat.v1.variable_scope(name) as scope:
         shape = bottom.get_shape().as_list()
         dim = 1
         for d in shape[1:]:
@@ -136,10 +138,10 @@ def inference(img):
 
     fc6 = fc_layer(pool_5 ,4000, "fc_6")
     relu_6 = tf.nn.relu(fc6)
-    relu_6 = tf.nn.dropout(relu_6 , 0.5)
+    relu_6 = tf.nn.dropout(relu_6 , rate = 0.5)
     fc7 = fc_layer(relu_6 , 2000,"fc_7")
     relu_7 = tf.nn.relu(fc7)
-    relu_7 = tf.nn.dropout(relu_7 , 0.5)
+    relu_7 = tf.nn.dropout(relu_7 ,rate = 0.5)
     fc8 = fc_layer(relu_7 ,3, "fc_8")
     resOp = tf.nn.softmax(fc8 , name="prob")
     return resOp
@@ -150,13 +152,17 @@ def getBatchTrain():
     imgString = tf.convert_to_tensor(pathList , dtype=tf.string)
     labelString = tf.convert_to_tensor(labelList , dtype=tf.int32)
 
-    imgQueue = tf.train.slice_input_producer([imgString , labelString],shuffle=True , num_epochs= 2)
-    labelQueue = imgQueue[1]
-    img = sliceReadImage(imgQueue)
-    labels = tf.one_hot(labelQueue , 3)
+    # imgQueue = tf.train.slice_input_producer([imgString , labelString],shuffle=True , num_epochs= 2)
+    imgQueue = tf.data.Dataset.from_tensor_slices((imgString , labelString))
+    imgQueue = imgQueue.map(sliceReadImage)
+    # imgQueue = imgQueue.shuffle(2000)
+    imgQueue = imgQueue.batch(1).repeat(1)
+    image , label = tf.compat.v1.data.make_one_shot_iterator(imgQueue).get_next()
+    # imgQueue.make_one_shot_iterator().get_next()
+    labels = tf.one_hot(label , 3)
 
-    x , y_ = tf.train.batch([img , labels] , batch_size=30)
-    return x , y_
+    # x , y_ = tf.train.batch([img , labels] , batch_size=30)
+    return image , labels
 
 def main():
 
@@ -168,16 +174,16 @@ def main():
     localInit = tf.compat.v1.local_variables_initializer()
     globalInit = tf.compat.v1.global_variables_initializer()
 
-    tf.summary.scalar("loss",lossOp)
+    tf.compat.v1.summary.scalar("loss",lossOp)
     # for item in tf.trainable_variables():
     #     tf.summary.histogram(item.name , item)
 
-    summary_op = tf.summary.merge_all()
+    summary_op = tf.compat.v1.summary.merge_all()
 
     with tf.compat.v1.Session() as sess:
         sess.run(localInit)
         sess.run(globalInit)
-        log_write = tf.summary.FileWriter("/Users/shanwang/Desktop/data/study/test/log" , sess.graph)
+        log_write = tf.compat.v1.summary.FileWriter("/Users/shanwang/Desktop/data/study/test/log" , sess.graph)
         coorid = tf.train.Coordinator()
         thread = tf.train.start_queue_runners(sess = sess , coord=coorid)
         try:
