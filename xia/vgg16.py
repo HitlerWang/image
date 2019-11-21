@@ -3,7 +3,6 @@ import tensorflow as tf
 import argparse
 import io
 import numpy as np
-import tensorflow_study.input_data as id
 
 size = 2383
 basePath = "/Users/shanwang/Desktop/data/xia/use/"
@@ -156,7 +155,7 @@ def getBatchTrain():
     img = sliceReadImage(imgQueue)
     labels = tf.one_hot(labelQueue , 3)
 
-    x , y_ = tf.train.batch([img , labels] , batch_size=2)
+    x , y_ = tf.train.batch([img , labels] , batch_size=30)
     return x , y_
 
 def main():
