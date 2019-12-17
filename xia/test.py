@@ -16,10 +16,13 @@ middle = "middle/"
 small = "small/"
 train = "train/"
 test = "test/"
+qiege = "qiege/"
 
 trainPath = basePath + train
 testPath = basePath + test
+qiegePath = basePath + train +qiege
 
+qiegeImg = "3_999.jpeg"
 img1 = "IMG_20190930_141241.jpg"
 img2 = "IMG_20190914_143027.jpg"
 img3 = "IMG_20191012_132530.jpg"
@@ -98,6 +101,25 @@ def convertTensor():
         print("a",a)
         tensor_a = tf.convert_to_tensor(a)
         print(tensor_a)
+
+def imgResize(path):
+    print(path)
+    img = cv2.imread(path)
+    print(img.shape)
+
+    dst=cv2.resize(img,(0,0),fx=1/10,fy=1/10,interpolation=cv2.INTER_LINEAR)
+    #将源图像的大小变为512*512
+    # dst=cv2.resize(img,(512,512))
+
+
+    cv2.namedWindow('gray_src' , 0)
+    cv2.imshow('gray_src' , dst)
+    k = cv2.waitKey(0)
+    if k == 27:         # wait for ESC key to exit
+        cv2.destroyAllWindows()
+    elif k == ord('s'): # wait for 's' key to save and exit
+        # cv2.imwrite('/Users/wangshan/Desktop/image/bb_bak.png', img_res)
+        cv2.destroyAllWindows()
 
 
 def checkImg(path):
@@ -183,15 +205,16 @@ def slipImg(path , x , y , w , h ):
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    # rand = random.randint(1,1500)
+    imgResize(qiegePath + qiegeImg)
+    rand = random.randint(1,1500)
     # slipImg("/Users/shanwang/Desktop/data/xia/use/train/middle/IMG_20190920_123211.jpg" , 1096,1673 ,1395,2170)
     # checkImg("/Users/shanwang/Desktop/data/xia/use/train/middle/IMG_20190920_123211.jpg")
-    for item in getAllImgPath(trainPath + small):
-        checkImg(item)
-    print("max_width : " ,max_width)
-    print("max_hight : " ,max_hight)
-    print("max_widthpath : " ,maxwidth_path)
-    print("max_hightpath : " ,maxheight_path)
+    # for item in getAllImgPath(trainPath + small):
+    #     checkImg(item)
+    # print("max_width : " ,max_width)
+    # print("max_hight : " ,max_hight)
+    # print("max_widthpath : " ,maxwidth_path)
+    # print("max_hightpath : " ,maxheight_path)
 
     # getAllImgPath(trainPath + small)
     # test()
