@@ -51,6 +51,7 @@ def sliceReadImage(img , label):
     file_contents = tf.io.read_file(img)
     img = tf.image.convert_image_dtype(tf.image.decode_jpeg(file_contents , channels=3) , dtype=tf.float32)
     img = tf.image.resize(img , size=(size,size))
+    tf.summary.image("input" , img , 10)
     return img , label
 
 
@@ -78,6 +79,8 @@ def bias_variable(shape):
 
 def conv_layer(bottom ,w_conv, b_conv ,name):
     with tf.compat.v1.variable_scope(name) as scope:
+        variable_summaries(w_conv)
+        variable_summaries(b_conv)
         conv = tf.nn.conv2d(bottom , w_conv ,strides=[1,1,1,1] , padding='SAME')
         bias = tf.nn.bias_add(conv , b_conv)
         relu = tf.nn.relu(bias)
@@ -100,11 +103,23 @@ def fc_layer(bottom , resLen ,name):
         fc = tf.nn.bias_add(tf.matmul(x,w), b)
         return fc
 
+def variable_summaries(var):
+    mean = tf.reduce_mean(var)
+    tf.summary.scalar('mean', mean)
+
+    # 计算参数的标准差
+    with tf.name_scope('stddev'):
+        stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+    # 使用tf.summary.scaler记录记录下标准差，最大值，最小值
+    tf.summary.scalar('stddev', stddev)
+    tf.summary.scalar('max', tf.reduce_max(var))
+    tf.summary.scalar('min', tf.reduce_min(var))
+
 def drop_out(name):
     pass
 
 def loss(logits, labels_placeholder):
-    cross_entropy = -tf.reduce_sum(labels_placeholder*tf.math.log(logits))
+    cross_entropy = -tf.reduce_sum(labels_placeholder*tf.math.log(tf.clip_by_value(logits,1e-10,1.0)) , name="loss")
     return cross_entropy
 
 def training(loss):
@@ -174,12 +189,12 @@ def main():
     localInit = tf.compat.v1.local_variables_initializer()
     globalInit = tf.compat.v1.global_variables_initializer()
 
-    tf.compat.v1.summary.scalar("loss",lossOp)
-    # for item in tf.trainable_variables():
-    #     tf.summary.histogram(item.name , item)
+    tf.summary.scalar("loss",lossOp)
+    for item in tf.trainable_variables():
+        tf.summary.histogram(item.name , item)
 
     summary_op = tf.compat.v1.summary.merge_all()
-
+    i = 0
     with tf.compat.v1.Session() as sess:
         sess.run(localInit)
         sess.run(globalInit)
@@ -189,7 +204,8 @@ def main():
         try:
             while not coorid.should_stop():
                 imgs , summary= sess.run([trainOp,summary_op])
-                log_write.add_summary(summary)
+                i = i + 1
+                log_write.add_summary(summary , i)
                 correct_prediction = tf.equal(tf.argmax(logits , 1) , tf.argmax(label , 1))
                 accuracy = tf.reduce_mean(tf.cast(correct_prediction , tf.float32))
                 print(sess.run(accuracy ))
