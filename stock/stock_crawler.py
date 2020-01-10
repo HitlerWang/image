@@ -8,19 +8,21 @@ bshy_url = 'http://dcfm.eastmoney.com/EM_MutiSvcExpandInterface/api/js/get?type=
 nameMapping = {
     "HYName":"名称",
     "Zdf" : "最新涨跌幅",
-    "Count":"bsc股票只数",
-    "ShareSZ_GZ":"bsc市值",
-    "ShareHold_Chg_BK":"bsc占板块比",
-    "ShareHold_Chg_GZ":"bsc占资金比",
-    "ZC_Count":"bsz股票只数",
-    "ShareSZ_ZC":"bsz市值",
-    "ShareHold_ZC_Chg_BK":"bsz占板块比",
-    "ShareHold_ZC_Chg_GZ":"bsz占资金比",
-    "Max_SZ_Name":"zc市值",
-    "Max_ZB_Name":"zc占股本比",
-    "Min_SZ_Name":"jc市值",
-    "Min_ZB_Name":"jc占股本比",
+    "Count":"北上资金今日持股-股票只数",
+    "ShareSZ_GZ":"北上资金今日持股-市值",
+    "ShareHold_Chg_BK":"北上资金今日持股-占板块比",
+    "ShareHold_Chg_GZ":"北上资金今日持股-占资金比",
+    "ZC_Count":"北上资金今日增持-股票只数",
+    "ShareSZ_ZC":"北上资金今日增持-市值",
+    "ShareHold_ZC_Chg_BK":"北上资金今日增持-占板块比",
+    "ShareHold_ZC_Chg_GZ":"北上资金今日增持-占资金比",
+    "Max_SZ_Name":"最大今日增持-市值",
+    "Max_ZB_Name":"最大今日增持-占股本比",
+    "Min_SZ_Name":"最大今日减持-市值",
+    "Min_ZB_Name":"最大今日减持-占股本比",
 }
+
+pecentStr = ['Zdf' , 'ShareHold_Chg_BK' , 'ShareHold_Chg_GZ' , 'ShareHold_ZC_Chg_BK' , 'ShareHold_ZC_Chg_GZ']
 
 bshy_detail_url = 'http://dcfm.eastmoney.com/EM_MutiSvcExpandInterface/api/js/get?type=HSGT20_GGTJ_SUM_BK&token=894050c76af8597a853f5b408b759f5d&st=ShareSZ_Chg_One&sr=-1&p=2&ps=50&js=var%20jWQXnVLQ={pages:(tp),data:(x)}&filter=(ORIGINALCODE=%27459%27%20and%20DateType=%271%27%20and%20HdDate=%272020-01-08%27)&rt=52618980'
 detail_nameMapping = {
@@ -64,8 +66,8 @@ testStr = '''
 '''
 
 
-filePath = '/Users/shanwang/Desktop/test.xls'
-otherfilePath = '/Users/shanwang/Desktop/test_a.xls'
+filePath = '/Users/wangshan/Desktop/test.xls'
+otherfilePath = '/Users/wangshan/Desktop/test_a.xls'
 def test():
     sess = requests.Session()
 
@@ -103,10 +105,28 @@ def bshy():
     res = sess.get(url=bshy_url)
     data = res.text.split("data:")[1][:-1]
     dataList = json.loads(data)
+
+    print(dataList[0])
+    k = 0
+    for key in nameMapping.keys():
+        bszjhySheet.write(0,k , nameMapping.get(key))
+        k = k + 1
+
     for i in range(len(dataList)):
         j = 0
         for key in nameMapping.keys():
-            bszjhySheet.write(i , j , dataList[i].get(key))
+            res = dataList[i].get(key)
+            if key == 'Zdf':
+                res = str(round(res, 2)) + '%'
+            elif key in ['ShareSZ_GZ' , 'ShareSZ_ZC']:
+                res = str(round(res / 100000000, 2)) + '亿'
+            elif key in ['ShareHold_Chg_BK' , 'ShareHold_Chg_GZ']:
+                res = str(round(res * 100 ,2)) + '%'
+            elif key in ['ShareHold_ZC_Chg_BK' , 'ShareHold_ZC_Chg_GZ']:
+                res = str(round(res * 1000 ,2)) + '%'
+
+
+            bszjhySheet.write(i + 1 , j , res)
             j = j + 1
     file.save(filePath)
 
