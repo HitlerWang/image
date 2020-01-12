@@ -2,6 +2,12 @@
 import requests
 import json
 import xlwt
+import pymysql
+
+from lxml import etree
+
+
+stock_list_url = 'http://quote.eastmoney.com/stock_list.html'
 
 bshy_url = 'http://dcfm.eastmoney.com/EM_MutiSvcExpandInterface/api/js/get?type=HSGT20_HYTJ_SUM&token=894050c76af8597a853f5b408b759f5d&st=ShareSZ_ZC&sr=-1&p=1&ps=500&js=var%20GKTnTrxX={pages:(tp),data:(x)}&filter=(DateType=%271%27)&rt=52618843'
 
@@ -98,6 +104,8 @@ def bshy_detail():
     print(dataList[0].keys())
 
 
+
+
 def bshy():
     file = xlwt.Workbook()
     bszjhySheet = file.add_sheet("北上资金行业板块" , cell_overwrite_ok=True)
@@ -145,7 +153,39 @@ def bsgg():
             j = j + 1
     file.save(filePath)
 
+def getStockList():
+    result = []
+    res = requests.get(url=stock_list_url)
+    htmlTree=etree.HTML(res.content.decode('gbk'))
+    stockList =htmlTree.xpath("/html/body/div[@class='qox']/div[@class='quotebody']/div[@id='quotesearch']/ul/li/a//text()")
+    for item in stockList:
+        # stockStr = etree.tostring(item , encoding='utf-8')
+        stockData = item.split('(')
+        name = stockData[0]
+        code = stockData[1].replace(')','')
+        if isAStock(code=code):
+            result.append({"name":name , "code":code})
+    saveAllStock(result)
+def isAStock(code):
+    if code[0] == '6' or code[0] == '0' or code[:3] == '300':
+        return True
+    return False
+def saveAllStock(stockList):
+    # 打开数据库连接
+    db = pymysql.connect("localhost", "root", "wangshan", "stock")
 
+    # 使用 cursor() 方法创建一个游标对象 cursor
+    cursor = db.cursor()
+    for item in stockList:
+        # SQL 插入语句
+        sql = 'INSERT INTO allstock(name ,code) VALUES ("'+ item.get('name')+'","'+item.get('code')+'")'
+        # print(sql)
+        # 执行sql语句
+        cursor.execute(sql)
+    # 提交到数据库执行
+    db.commit()
+    # 关闭数据库连接
+    db.close()
 
 if __name__ == '__main__':
-    bsgg()
+    getStockList()
