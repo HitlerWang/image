@@ -1,9 +1,10 @@
 *.log
 *.temp
 *.iml
+.DS_Store
 /vendor
 /.idea/
 
-
+*.pyc
 floyd*
 .floyd*
