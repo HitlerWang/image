@@ -9,6 +9,10 @@ from lxml import etree
 
 stock_list_url = 'http://quote.eastmoney.com/stock_list.html'
 
+hsgt_jg_list_url = 'http://dcfm.eastmoney.com//em_mutisvcexpandinterface/api/js/get?type=HSGTCOMSTA&token=70f12f2f4f091e459a279469fe49eca5&st=HDDATE,SHAREHOLDCOUNT&sr=3&p=1&ps=500&js=var%20lMCByFSy={pages:(tp),data:(x)}&filter=(MARKET=%27N%27)(HDDATE=^2020-01-09^)&rt=52628114'
+
+
+
 bshy_url = 'http://dcfm.eastmoney.com/EM_MutiSvcExpandInterface/api/js/get?type=HSGT20_HYTJ_SUM&token=894050c76af8597a853f5b408b759f5d&st=ShareSZ_ZC&sr=-1&p=1&ps=500&js=var%20GKTnTrxX={pages:(tp),data:(x)}&filter=(DateType=%271%27)&rt=52618843'
 
 nameMapping = {
@@ -153,6 +157,37 @@ def bsgg():
             j = j + 1
     file.save(filePath)
 
+def getBXJGList():
+    for day in ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31']:
+        partitionList = []
+        res = requests.get(url='http://dcfm.eastmoney.com//em_mutisvcexpandinterface/api/js/get?type=HSGTCOMSTA&token=70f12f2f4f091e459a279469fe49eca5&st=HDDATE,SHAREHOLDCOUNT&sr=3&p=1&ps=500&js=var%20lMCByFSy={pages:(tp),data:(x)}&filter=(MARKET=%27N%27)(HDDATE=^2019-12-'+ day +'^)&rt=52628114')
+        data = res.text.split("data:")[1][:-1]
+        dataList = json.loads(data)
+        for item in dataList:
+            partitionList.append({"name":item.get("PARTICIPANTNAME"),"code":item.get("PARTICIPANTCODE")})
+        print(partitionList)
+        saveAllParition(partitionList)
+def saveAllParition(paritionList):
+
+    # 打开数据库连接
+    db = pymysql.connect("localhost", "root", "wangshan", "stock")
+
+    # 使用 cursor() 方法创建一个游标对象 cursor
+    cursor = db.cursor()
+    for item in paritionList:
+        # SQL 插入语句
+        sql = 'INSERT INTO all_partition(name ,code) VALUES ("'+ item.get('name')+'","'+item.get('code')+'")'
+        # print(sql)
+
+        try:
+            # 执行sql语句
+            cursor.execute(sql)
+            # 提交到数据库执行
+            db.commit()
+        except:
+            print("err")
+    # 关闭数据库连接
+    db.close()
 def getStockList():
     result = []
     res = requests.get(url=stock_list_url)
@@ -188,4 +223,4 @@ def saveAllStock(stockList):
     db.close()
 
 if __name__ == '__main__':
-    getStockList()
+    getBXJGList()
