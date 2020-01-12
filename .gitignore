@@ -1,3 +1,9 @@
 *.log
 *.temp
+*.iml
 /vendor
+/.idea/
+
+
+floyd*
+.floyd*
