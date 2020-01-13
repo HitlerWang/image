@@ -274,7 +274,7 @@ def savePartitionStockDetail(details):
         # SQL 插入语句
         sql = 'INSERT INTO partition_stock_detail(hd_date ,partition_code,stock_code,close_price,hold_sum,hold_money,today_zd,hold_sum_percent,hold_change_one,hold_change_five,hold_change_ten) ' \
               'VALUES ("' + item.get('HDDATE') + '","' + item.get('PARTICIPANTCODE') + '","'+ item.get('SCODE') + '","'+ str(round(item.get('CLOSEPRICE'), 5))+'","'+str(round(item.get('SHAREHOLDSUM'), 5))\
-              + '","' + str(round(item.get('SHAREHOLDPRICE'), 2))+'","'+ str(round(item.get('ZDF'), 2))+'","'\
+              + '","' + str(round(item.get('SHAREHOLDPRICE'), 5))+'","'+ str(round(item.get('ZDF'), 5))+'","'\
               +str(round(item.get('Zb'), 5))+ '","'+ str(round(item.get('SHAREHOLDPRICEONE'), 5))+'","'+ str(round(item.get('SHAREHOLDPRICEFIVE'), 5))+'","'+str(round(item.get('SHAREHOLDPRICETEN'), 5))+ '")'
 
         # 执行sql语句
@@ -301,4 +301,4 @@ def getAllParitionFromDB():
     return resp
 
 if __name__ == '__main__':
-    getAndsavePartitionDtDetail('B01451' , '2020-01-09')
+    getBsDtDetailList('2019-12-20' , '2020-01-12')
