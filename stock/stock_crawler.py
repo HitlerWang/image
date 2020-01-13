@@ -3,6 +3,8 @@ import requests
 import json
 import xlwt
 import pymysql
+import time
+import datetime
 
 from lxml import etree
 
@@ -11,7 +13,20 @@ stock_list_url = 'http://quote.eastmoney.com/stock_list.html'
 
 hsgt_jg_list_url = 'http://dcfm.eastmoney.com//em_mutisvcexpandinterface/api/js/get?type=HSGTCOMSTA&token=70f12f2f4f091e459a279469fe49eca5&st=HDDATE,SHAREHOLDCOUNT&sr=3&p=1&ps=500&js=var%20lMCByFSy={pages:(tp),data:(x)}&filter=(MARKET=%27N%27)(HDDATE=^2020-01-09^)&rt=52628114'
 
-
+hsgt_jg_dt_detail_list_url = 'http://dcfm.eastmoney.com//em_mutisvcexpandinterface/api/js/get?token=70f12f2f4f091e459a279469fe49eca5&st=HDDATE,SHAREHOLDPRICE&sr=3&p=2&ps=50&js=var%20hjqVpcJG={pages:(tp),data:(x)}&filter=(PARTICIPANTCODE=%27B01110%27)(MARKET%20in%20(%27001%27,%27003%27))(HDDATE=^2020-01-10^)&type=HSGTNHDDET&rt=52629792'
+jg_dt_detail_nameMapping = {
+    "SCode":"股票代码",
+    "CLOSEPRICE":"今日收盘价",
+    "Zdf":"今日涨跌幅",
+    "SHAREHOLDSUM":"持股数量",
+    "SHAREHOLDPRICE":"持股市值",
+    "Zb":"持股数量占比",
+    "PARTICIPANTCODE":"机构代码",
+    "HDDATE":"持股日期",
+    "SHAREHOLDPRICEONE":"持股市值变化1",
+    "SHAREHOLDPRICEFIVE":"持股市值变化5",
+    "SHAREHOLDPRICETEN":"持股市值变化10",
+}
 
 bshy_url = 'http://dcfm.eastmoney.com/EM_MutiSvcExpandInterface/api/js/get?type=HSGT20_HYTJ_SUM&token=894050c76af8597a853f5b408b759f5d&st=ShareSZ_ZC&sr=-1&p=1&ps=500&js=var%20GKTnTrxX={pages:(tp),data:(x)}&filter=(DateType=%271%27)&rt=52618843'
 
@@ -157,6 +172,29 @@ def bsgg():
             j = j + 1
     file.save(filePath)
 
+def getBsDtDetailList(startDt , endDt):
+    for partition in getAllParitionFromDB():
+        for dt in getDtList(startDt,endDt):
+            getAndsavePartitionDtDetail(partition , dt)
+
+
+def getAndsavePartitionDtDetail(partitionCode , dt):
+    sess = requests.Session()
+    url = 'http://dcfm.eastmoney.com//em_mutisvcexpandinterface/api/js/get?token=70f12f2f4f091e459a279469fe49eca5&st=HDDATE,SHAREHOLDPRICE&sr=3&p=2&ps=50&js=var%20hjqVpcJG={pages:(tp),data:(x)}&filter=(PARTICIPANTCODE=%27'+ partitionCode +'%27)(MARKET%20in%20(%27001%27,%27003%27))(HDDATE=^'+ dt +'^)&type=HSGTNHDDET&rt=52629792'
+    res = sess.get(url=url)
+    data = res.text.split("data:")[1][:-1]
+    dataList = json.loads(data)
+
+
+def getDtList(beginDate, endDate):
+    dates = []
+    dt = datetime.datetime.strptime(beginDate, "%Y-%m-%d")
+    date = beginDate[:]
+    while date <= endDate:
+        dates.append(date)
+        dt = dt + datetime.timedelta(1)
+        date = dt.strftime("%Y-%m-%d")
+    return dates
 def getBXJGList():
     for day in ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31']:
         partitionList = []
@@ -222,5 +260,38 @@ def saveAllStock(stockList):
     # 关闭数据库连接
     db.close()
 
+def savePartitionStockDetail(details):
+    # 打开数据库连接
+    db = pymysql.connect("localhost", "root", "wangshan", "stock")
+
+    # 使用 cursor() 方法创建一个游标对象 cursor
+    cursor = db.cursor()
+    for item in details:
+        # SQL 插入语句
+        sql = 'INSERT INTO allstock(name ,code) VALUES ("'+ item.get('name')+'","'+item.get('code')+'")'
+        # print(sql)
+        # 执行sql语句
+        cursor.execute(sql)
+    # 提交到数据库执行
+    db.commit()
+    # 关闭数据库连接
+    db.close()
+
+def getAllParitionFromDB():
+    resp = []
+    # 打开数据库连接
+    db = pymysql.connect("localhost", "root", "wangshan", "stock")
+    # 使用 cursor() 方法创建一个游标对象 cursor
+    cursor = db.cursor()
+    sql = "select * from all_partition"
+    # 执行sql语句
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    for row in results:
+        resp.append(row[2])
+    # 关闭数据库连接
+    db.close()
+    return resp
+
 if __name__ == '__main__':
-    getBXJGList()
+    getAndsavePartitionDtDetail('B01914' , '2020-01-09')
