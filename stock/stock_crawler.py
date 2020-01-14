@@ -191,12 +191,12 @@ def getAndsavePartitionDtDetail(partitionCode , dt):
             for item in dataList:
                 result_data.append(item)
             savePartitionStockDetail(result_data)
-            print(partitionCode + ' ' + dt + ' ' + str(i) + ' time : ' + str(time.time() - startTime))
-            if len(dataList) < 10:
-                print(partitionCode + ' ' + dt + ' ' + str(i) + ' len : ' + str(len(dataList)))
+            print(partitionCode + ' ' + dt + ' ' + str(i+1) + ' time : ' + str(time.time() - startTime))
+            if len(dataList) < 400:
+                print(partitionCode + ' ' + dt + ' ' + str(i+1) + ' len : ' + str(len(dataList)))
                 return
-        except:
-            print('error')
+        except Exception as e:
+            print('error : '+ e.msg)
             pass
 
 
@@ -311,4 +311,4 @@ def getAllParitionFromDB():
 
 if __name__ == '__main__':
     # getAndsavePartitionDtDetail('B01451' , '2019-12-16')
-    getBsDtDetailList('2019-12-16' , '2020-01-13')
+    getBsDtDetailList('2019-12-16' , '2020-01-01')
