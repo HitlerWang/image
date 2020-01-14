@@ -16,7 +16,7 @@ CREATE TABLE `all_partition` (
 
 CREATE TABLE `partition_stock_detail` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `hd_date` varchar(15) NOT NULL,
+  `hd_date` varchar(25) NOT NULL,
   `partition_code` varchar(50) NOT NULL,
   `stock_code` varchar(10) NOT NULL,
   `close_price` float(20,5) DEFAULT NULL,

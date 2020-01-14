@@ -179,16 +179,25 @@ def getBsDtDetailList(startDt , endDt):
 
 
 def getAndsavePartitionDtDetail(partitionCode , dt):
-    result_data = []
-    sess = requests.Session()
-    url = 'http://dcfm.eastmoney.com//em_mutisvcexpandinterface/api/js/get?token=70f12f2f4f091e459a279469fe49eca5&st=HDDATE,SHAREHOLDPRICE&sr=3&p=2&ps=50&js=var%20hjqVpcJG={pages:(tp),data:(x)}&filter=(PARTICIPANTCODE=%27'+ partitionCode +'%27)(MARKET%20in%20(%27001%27,%27003%27))(HDDATE=^'+ dt +'^)&type=HSGTNHDDET&rt=52629792'
-    res = sess.get(url=url)
-    data = res.text.split("data:")[1][:-1]
-    dataList = json.loads(data)
-    for item in dataList:
-        result_data.append(item)
-    savePartitionStockDetail(result_data)
-
+    for i in range(10):
+        result_data = []
+        sess = requests.Session()
+        url = 'http://dcfm.eastmoney.com//em_mutisvcexpandinterface/api/js/get?token=70f12f2f4f091e459a279469fe49eca5&st=HDDATE,SHAREHOLDPRICE&sr=3&p=' + str(i+1) + '&ps=500&js=var%20hjqVpcJG={pages:(tp),data:(x)}&filter=(PARTICIPANTCODE=%27'+ partitionCode +'%27)(MARKET%20in%20(%27001%27,%27003%27))(HDDATE=^'+ dt +'^)&type=HSGTNHDDET&rt=52629792'
+        try:
+            startTime = time.time()
+            res = sess.get(url=url)
+            data = res.text.split("data:")[1][:-1]
+            dataList = json.loads(data)
+            for item in dataList:
+                result_data.append(item)
+            savePartitionStockDetail(result_data)
+            print(partitionCode + ' ' + dt + ' ' + str(i) + ' time : ' + str(time.time() - startTime))
+            if len(dataList) < 10:
+                print(partitionCode + ' ' + dt + ' ' + str(i) + ' len : ' + str(len(dataList)))
+                return
+        except:
+            print('error')
+            pass
 
 
 def getDtList(beginDate, endDate):
@@ -301,4 +310,5 @@ def getAllParitionFromDB():
     return resp
 
 if __name__ == '__main__':
-    getBsDtDetailList('2019-12-20' , '2020-01-12')
+    # getAndsavePartitionDtDetail('B01451' , '2019-12-16')
+    getBsDtDetailList('2019-12-16' , '2020-01-13')
