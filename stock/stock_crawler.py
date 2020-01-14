@@ -5,9 +5,12 @@ import xlwt
 import pymysql
 import time
 import datetime
-
+import traceback
 from lxml import etree
 
+err_url_path = '/Users/shanwang/Desktop/err_url.text'
+
+f = open(err_url_path, "a+")
 
 stock_list_url = 'http://quote.eastmoney.com/stock_list.html'
 
@@ -192,12 +195,13 @@ def getAndsavePartitionDtDetail(partitionCode , dt):
                 result_data.append(item)
             savePartitionStockDetail(result_data)
             print(partitionCode + ' ' + dt + ' ' + str(i+1) + ' time : ' + str(time.time() - startTime))
-            if len(dataList) < 400:
+            if len(dataList) < 450:
                 print(partitionCode + ' ' + dt + ' ' + str(i+1) + ' len : ' + str(len(dataList)))
                 return
         except Exception as e:
-            print('error : '+ e.msg)
-            pass
+            f.write(url + '\n')
+            print(url)
+            print(e)
 
 
 def getDtList(beginDate, endDate):
@@ -280,14 +284,18 @@ def savePartitionStockDetail(details):
     # 使用 cursor() 方法创建一个游标对象 cursor
     cursor = db.cursor()
     for item in details:
-        # SQL 插入语句
-        sql = 'INSERT INTO partition_stock_detail(hd_date ,partition_code,stock_code,close_price,hold_sum,hold_money,today_zd,hold_sum_percent,hold_change_one,hold_change_five,hold_change_ten) ' \
-              'VALUES ("' + item.get('HDDATE') + '","' + item.get('PARTICIPANTCODE') + '","'+ item.get('SCODE') + '","'+ str(round(item.get('CLOSEPRICE'), 5))+'","'+str(round(item.get('SHAREHOLDSUM'), 5))\
-              + '","' + str(round(item.get('SHAREHOLDPRICE'), 5))+'","'+ str(round(item.get('ZDF'), 5))+'","'\
-              +str(round(item.get('Zb'), 5))+ '","'+ str(round(item.get('SHAREHOLDPRICEONE'), 5))+'","'+ str(round(item.get('SHAREHOLDPRICEFIVE'), 5))+'","'+str(round(item.get('SHAREHOLDPRICETEN'), 5))+ '")'
+        try:
+            # SQL 插入语句
+            sql = 'INSERT INTO partition_stock_detail(hd_date ,partition_code,stock_code,close_price,hold_sum,hold_money,today_zd,hold_sum_percent,hold_change_one,hold_change_five,hold_change_ten) ' \
+                  'VALUES ("' + item.get('HDDATE') + '","' + item.get('PARTICIPANTCODE') + '","'+ item.get('SCODE') + '","'+ str(round(item.get('CLOSEPRICE'), 5))+'","'+str(round(item.get('SHAREHOLDSUM'), 5))\
+                  + '","' + str(round(item.get('SHAREHOLDPRICE'), 5))+'","'+ str(round(item.get('ZDF'), 5))+'","'\
+                  +str(round(item.get('Zb'), 5))+ '","'+ str(round(item.get('SHAREHOLDPRICEONE'), 5))+'","'+ str(round(item.get('SHAREHOLDPRICEFIVE'), 5))+'","'+str(round(item.get('SHAREHOLDPRICETEN'), 5))+ '")'
 
-        # 执行sql语句
-        cursor.execute(sql)
+            # 执行sql语句
+            cursor.execute(sql)
+        except Exception as e:
+            print(e)
+            # traceback.print_exc()
     # 提交到数据库执行
     db.commit()
     # 关闭数据库连接
@@ -312,3 +320,4 @@ def getAllParitionFromDB():
 if __name__ == '__main__':
     # getAndsavePartitionDtDetail('B01451' , '2019-12-16')
     getBsDtDetailList('2019-12-16' , '2020-01-01')
+    f.close()
