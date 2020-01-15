@@ -202,7 +202,22 @@ def getAndsavePartitionDtDetail(partitionCode , dt):
             f.write(url + '\n')
             print(url)
             print(e)
-
+def getAndsavePartitionDtDetailFromUrl(url):
+    result_data = []
+    sess = requests.Session()
+    try:
+        startTime = time.time()
+        res = sess.get(url=url)
+        data = res.text.split("data:")[1][:-1]
+        dataList = json.loads(data)
+        for item in dataList:
+            result_data.append(item)
+        savePartitionStockDetail(result_data)
+        print(' time : ' + str(time.time() - startTime))
+    except Exception as e:
+        f.write(url + '\n')
+        print(url)
+        print(e)
 
 def getDtList(beginDate, endDate):
     dates = []
@@ -317,7 +332,16 @@ def getAllParitionFromDB():
     db.close()
     return resp
 
+def getfailUrl(filePath):
+    with open(filePath, "r") as file:
+        for line in file.readlines():
+            url = line.replace("\n","")
+            getAndsavePartitionDtDetailFromUrl(url)
+
+
+
 if __name__ == '__main__':
+    getfailUrl(err_url_path)
     # getAndsavePartitionDtDetail('B01451' , '2019-12-16')
-    getBsDtDetailList('2019-12-16' , '2020-01-01')
-    f.close()
+    # getBsDtDetailList('2020-01-02' , '2020-01-14')
+    # f.close()
