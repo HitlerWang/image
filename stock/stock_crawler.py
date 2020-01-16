@@ -8,7 +8,7 @@ import datetime
 import traceback
 from lxml import etree
 
-err_url_path = '/Users/shanwang/Desktop/err_url.text'
+err_url_path = '/Users/wangshan/Desktop/err_url.text'
 
 f = open(err_url_path, "a+")
 
@@ -341,7 +341,7 @@ def getfailUrl(filePath):
 
 
 if __name__ == '__main__':
-    getfailUrl(err_url_path)
+    # getfailUrl(err_url_path)
     # getAndsavePartitionDtDetail('B01451' , '2019-12-16')
-    # getBsDtDetailList('2020-01-02' , '2020-01-14')
+    getBsDtDetailList('2019-12-20' , '2019-12-20')
     # f.close()
