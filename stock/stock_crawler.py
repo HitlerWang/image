@@ -6,11 +6,16 @@ import pymysql
 import time
 import datetime
 import traceback
+import random
 from lxml import etree
 
 err_url_path = '/Users/wangshan/Desktop/err_url.text'
 
 f = open(err_url_path, "a+")
+
+testCountSql = 'select count(1) from partition_stock_detail where hd_date="{dt}T00:00:00"  and  partition_code="{partition_code}" '
+
+testQualitySql = 'select * from partition_stock_detail where hd_date="{dt}T00:00:00"  and  partition_code="{partition_code}" and  stock_code="{stock_code}" '
 
 stock_list_url = 'http://quote.eastmoney.com/stock_list.html'
 
@@ -339,9 +344,67 @@ def getfailUrl(filePath):
             getAndsavePartitionDtDetailFromUrl(url)
 
 
+def query(sql_temp ,stock_code , dt ,partition_code):
+    # 打开数据库连接
+    db = pymysql.connect("localhost", "root", "wangshan", "stock")
+    # 使用 cursor() 方法创建一个游标对象 cursor
+    cursor = db.cursor()
+    sql = sql_temp.format(stock_code=stock_code , dt = dt , partition_code=partition_code)
+    # 执行sql语句
+    cursor.execute(sql)
+    result = cursor.fetchone()
+    # 关闭数据库连接
+    db.close()
+    return result
+
+def testCrawlerCount(countPartition , startDt , endDt):
+    partition = getAllParitionFromDB()
+    allDt = getDtList(startDt , endDt)
+    for dt in allDt:
+        for i in range(countPartition):
+            ranparti = random.randint(1,len(partition))
+            code = partition[ranparti]
+            sess = requests.Session()
+            url = 'http://dcfm.eastmoney.com//em_mutisvcexpandinterface/api/js/get?token=70f12f2f4f091e459a279469fe49eca5&st=HDDATE,SHAREHOLDPRICE&sr=3&p=1&ps=50&js=var%20hjqVpcJG={pages:(tp),data:(x)}&filter=(PARTICIPANTCODE=%27' + code + '%27)(MARKET%20in%20(%27001%27,%27003%27))(HDDATE=^' + dt + '^)&type=HSGTNHDDET&rt=52629792'
+            res = sess.get(url=url)
+            try:
+                pages = res.text.split("pages:")[1].split(",")[0]
+                res = query(testCountSql,'' ,dt ,code)
+                if int(pages)*50 - res[0] >50:
+                    print("loss\t"+dt + "\t" +code )
+                else:
+                    print("ok\t"+dt + "\t" +code )
+            except Exception as e:
+                print(e)
+    pass
+
+
+def testCrawlerQuality(countPartition , startDt , endDt):
+    partition = getAllParitionFromDB()
+    allDt = getDtList(startDt , endDt)
+    for dt in allDt:
+        for i in range(countPartition):
+            ranparti = random.randint(1,len(partition))
+            code = partition[ranparti]
+            sess = requests.Session()
+            url = 'http://dcfm.eastmoney.com//em_mutisvcexpandinterface/api/js/get?token=70f12f2f4f091e459a279469fe49eca5&st=HDDATE,SHAREHOLDPRICE&sr=3&p=1&ps=50&js=var%20hjqVpcJG={pages:(tp),data:(x)}&filter=(PARTICIPANTCODE=%27' + code + '%27)(MARKET%20in%20(%27001%27,%27003%27))(HDDATE=^' + dt + '^)&type=HSGTNHDDET&rt=52629792'
+            res = sess.get(url=url)
+            data = res.text.split("data:")[1][:-1]
+            dataList = json.loads(data)
+            for item in dataList:
+                result = query(testQualitySql , item.get('SCODE') , dt , item.get('PARTICIPANTCODE'))
+                if result[4] == round(item.get('CLOSEPRICE'), 5) and result[5] == round(item.get('SHAREHOLDSUM'), 5) \
+                        and result[6] == round(item.get('SHAREHOLDPRICE'), 5) and  result[7] == round(item.get('ZDF'), 5)\
+                        and  result[9] == round(item.get('SHAREHOLDPRICEONE'), 5)\
+                        and result[10] == round(item.get('SHAREHOLDPRICEFIVE'), 5) and result[11] == round(item.get('SHAREHOLDPRICETEN'), 5):
+                    print("ok")
+                else:
+                    print("mismatch" + "\t" + str(item)+"\t" + str(result))
 
 if __name__ == '__main__':
     # getfailUrl(err_url_path)
     # getAndsavePartitionDtDetail('B01451' , '2019-12-16')
-    getBsDtDetailList('2019-12-20' , '2019-12-20')
+    # getBsDtDetailList('2019-12-24' , '2019-12-24')
+    # testCrawlerCount(7,"2019-12-16","2019-12-20")
+    testCrawlerQuality(7,"2019-12-16","2019-12-20")
     # f.close()
