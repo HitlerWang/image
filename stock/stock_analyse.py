@@ -93,19 +93,21 @@ def analyse_xuangu(startDate , endDate):
         print(str(i) + "\t" + zc_res[i][0] + "\t"+ str(zc_res[i][1]) +"\t"+ str(zc_res[i][2]) +"\t"+str(zc_res[i][3]) +"\t"+ jc_res[i][0] +"\t"+ jc_res[i][1]+"\t"+ str(jc_res[i][2]) + "\t-"+ str(jc_res[i][3]) )
     pass
 if __name__ == '__main__':
-    # gg_analyse(stock_partition_jc_dt_sql , '000651' ,'2020-01-13')
-
-    # analyse_gg("600489","2020-01-01","2020-01-14")
+    # gg_analyse(stock_partition_jc_dt_sql , '000651' ,'2020-01-13')、、、
+    # analyse_gg("600339","2020-01-01","2020-01-20")
     # print("\n")
-    # analyse_gg("601766", "2020-01-01", "2020-01-14")
+    # analyse_gg("600398","2020-01-01","2020-01-20")
     # print("\n")
-    # analyse_gg("600398", "2020-01-01", "2020-01-14")
+    # analyse_gg("600489","2020-01-01","2020-01-20")
     # print("\n")
-    # analyse_gg("002797", "2020-01-01", "2020-01-14")
-
+    # analyse_gg("601766", "2020-01-01", "2020-01-20")
+    # print("\n")
+    # analyse_gg("600598", "2020-01-01", "2020-01-20")
+    # print("\n")
+    # analyse_gg("002415", "2020-01-01", "2020-01-20")
 
     analyse_hq()
-    # analyse_xuangu("2020-01-13","2020-01-13")
+    analyse_xuangu("2020-01-23","2020-01-23")
 
     pass
 

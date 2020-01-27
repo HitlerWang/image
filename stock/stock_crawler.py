@@ -9,7 +9,7 @@ import traceback
 import random
 from lxml import etree
 
-err_url_path = '/Users/wangshan/Desktop/err_url.text'
+err_url_path = '/Users/shanwang/Desktop/err_url.text'
 
 f = open(err_url_path, "a+")
 
@@ -18,6 +18,9 @@ testCountSql = 'select count(1) from partition_stock_detail where hd_date="{dt}T
 testQualitySql = 'select * from partition_stock_detail where hd_date="{dt}T00:00:00"  and  partition_code="{partition_code}" and  stock_code="{stock_code}" '
 
 stock_list_url = 'http://quote.eastmoney.com/stock_list.html'
+
+stock_detail_url = 'http://75.push2.eastmoney.com/api/qt/stock/get?fltt=2&invt=2&secid=1.600339&fields=f78,f58,f86,f43,f169,f170,f44,f45,f46,f47,f116,f117,f162,f167,f60&ut=b2884a393a59ad64002292a3e90d46a5&cb=jQuery18305844286905750697_1579587845624&_=1579587847181'
+
 
 hsgt_jg_list_url = 'http://dcfm.eastmoney.com//em_mutisvcexpandinterface/api/js/get?type=HSGTCOMSTA&token=70f12f2f4f091e459a279469fe49eca5&st=HDDATE,SHAREHOLDCOUNT&sr=3&p=1&ps=500&js=var%20lMCByFSy={pages:(tp),data:(x)}&filter=(MARKET=%27N%27)(HDDATE=^2020-01-09^)&rt=52628114'
 
@@ -376,7 +379,6 @@ def testCrawlerCount(countPartition , startDt , endDt):
                     print("ok\t"+dt + "\t" +code )
             except Exception as e:
                 print(e)
-    pass
 
 
 def testCrawlerQuality(countPartition , startDt , endDt):
@@ -402,9 +404,11 @@ def testCrawlerQuality(countPartition , startDt , endDt):
                     print("mismatch" + "\t" + str(item)+"\t" + str(result))
 
 if __name__ == '__main__':
-    # getfailUrl(err_url_path)
+    getfailUrl(err_url_path)
     # getAndsavePartitionDtDetail('B01451' , '2019-12-16')
-    # getBsDtDetailList('2019-12-24' , '2019-12-24')
+    getBsDtDetailList('2020-01-22' , '2020-01-23')
+
+
     # testCrawlerCount(7,"2019-12-16","2019-12-20")
-    testCrawlerQuality(7,"2019-12-16","2019-12-20")
+    # testCrawlerQuality(7,"2019-12-16","2019-12-20")
     # f.close()
