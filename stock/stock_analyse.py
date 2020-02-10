@@ -14,9 +14,11 @@ hq_zc_sql='select hd_date ,count(partition_code) count_res from partition_stock_
 
 hq_jc_sql='select hd_date ,count(partition_code) count_res from partition_stock_detail where hold_change_one<0 and hold_change_five<hold_change_one and hold_change_ten<hold_change_five group by hd_date order by hd_date desc'
 
-xg_zc_sql='select stock_code,name , avg(today_zd),  count(partition_code) count_res from partition_stock_detail join allstock on (partition_stock_detail.stock_code = allstock.code) where hd_date>="{start_dt}T00:00:00" and hd_date<="{end_dt}T00:00:00" and hold_change_one>0 and hold_change_five>hold_change_one and hold_change_ten>hold_change_five group by stock_code  order by 4 desc limit 20;'
+xg_zc_sql='select stock_code,name , avg(today_zd),  count(partition_code) count_res from partition_stock_detail join allstock on (partition_stock_detail.stock_code = allstock.code) where hd_date>="{start_dt}T00:00:00" and hd_date<="{end_dt}T00:00:00" and partition_code in ("C00019","C00010","C00100","C00039","B01943","B01590","B01228","B01130","B01345","B01284","B01143","B01668","B01565","C00074","B02145","B01739") and hold_change_one>0 and hold_change_five>hold_change_one and hold_change_ten>hold_change_five group by stock_code  order by 4 desc limit 20;'
 
-xg_jc_sql='select stock_code,name ,avg(today_zd), count(partition_code) count_res from partition_stock_detail join allstock on (partition_stock_detail.stock_code = allstock.code) where hd_date>="{start_dt}T00:00:00" and  hd_date<="{end_dt}T00:00:00" and hold_change_one<0 and hold_change_five<hold_change_one and hold_change_ten<hold_change_five group by stock_code  order by 4 desc limit 20;'
+xg_jc_sql='select stock_code,name ,avg(today_zd), count(partition_code) count_res from partition_stock_detail join allstock on (partition_stock_detail.stock_code = allstock.code) where hd_date>="{start_dt}T00:00:00" and  hd_date<="{end_dt}T00:00:00" and partition_code in ("C00019","C00010","C00100","C00039","B01943","B01590","B01228","B01130","B01345","B01284","B01143","B01668","B01565","C00074","B02145","B01739") and hold_change_one<0 and hold_change_five<hold_change_one and hold_change_ten<hold_change_five group by stock_code  order by 4 desc limit 20;'
+
+partition_youzi = 'and partition_code in ("C00019","C00010","C00100","C00039","B01943","B01590","B01228","B01130","B01345","B01284","B01143","B01668","B01565","C00074","B02145","B01739") '
 
 def list_analyse(sqlTemp , code , dt):
     resp = []
@@ -107,7 +109,7 @@ if __name__ == '__main__':
     # analyse_gg("002415", "2020-01-01", "2020-01-20")
 
     analyse_hq()
-    analyse_xuangu("2020-01-23","2020-01-23")
+    analyse_xuangu("2020-01-22","2020-01-23")
 
     pass
 

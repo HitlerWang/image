@@ -16,7 +16,7 @@ queryPartitionSql = "select * from all_partition"
 queryDetailsSql = "select * from partition_stock_detail"
 
 
-thread = 0.5
+threads = 0.5
 detailsMap = {}
 stocks = []
 partitions = []
@@ -80,7 +80,7 @@ def handle_cos_same():
     getAllPartition()
     for item in rows:
         partition_dict[item[2]] = item[1]
-    print(partition_dict)
+    # print(partition_dict)
 
     cos_dict = {}
     with open("/Users/shanwang/Desktop/aa" , "r") as f:
@@ -88,14 +88,21 @@ def handle_cos_same():
         cos_dict = json.loads(cos_result)
     for i , keyi in enumerate(partitions):
         value = cos_dict.get(keyi)
-        print(keyi)
-        sheet1.write(0,i+1 , partition_dict.get(keyi))
-        sheet1.write(i+1,0 , partition_dict.get(keyi))
+        # print(keyi)
+        prires = []
+        # sheet1.write(0,i+1 , partition_dict.get(keyi))
+        # sheet1.write(i+1,0 , partition_dict.get(keyi))
         for j , keyj in enumerate(partitions):
             res = value.get(keyj)
-            sheet1.write(i+1 , j +1, res)
-            if res is None:
-                pass
+            # sheet1.write(i+1 , j +1, res)
+            if res is not None and res > threads:
+                prires.append((keyj , res))
+        if len(prires) > 3:
+            # sheet1.write(i ,0 , partition_dict.get(keyi))
+            # for index , item in enumerate(prires):
+            #     sheet1.write( i , index + 1 , item[0] + " - " + str(item[1]))
+            print(keyi)
+            # print(prires)
 
     file.save(same_file_path)
 
@@ -105,7 +112,7 @@ def process():
         temp_result = {}
         for other_index , other_partition in enumerate(partitions):
             res = cos_dist(vector[index] , vector[other_index])
-            if res > thread:
+            if res > threads:
                 temp_result[other_partition] = res
         same_result[partition] = temp_result
 
