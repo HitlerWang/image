@@ -237,9 +237,9 @@ def getDtList(beginDate, endDate):
         date = dt.strftime("%Y-%m-%d")
     return dates
 def getBXJGList():
-    for day in ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31']:
+    for day in ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21']:
         partitionList = []
-        res = requests.get(url='http://dcfm.eastmoney.com//em_mutisvcexpandinterface/api/js/get?type=HSGTCOMSTA&token=70f12f2f4f091e459a279469fe49eca5&st=HDDATE,SHAREHOLDCOUNT&sr=3&p=1&ps=500&js=var%20lMCByFSy={pages:(tp),data:(x)}&filter=(MARKET=%27N%27)(HDDATE=^2019-12-'+ day +'^)&rt=52628114')
+        res = requests.get(url='http://dcfm.eastmoney.com//em_mutisvcexpandinterface/api/js/get?type=HSGTCOMSTA&token=70f12f2f4f091e459a279469fe49eca5&st=HDDATE,SHAREHOLDCOUNT&sr=3&p=1&ps=500&js=var%20lMCByFSy={pages:(tp),data:(x)}&filter=(MARKET=%27N%27)(HDDATE=^2020-02-'+ day +'^)&rt=52628114')
         data = res.text.split("data:")[1][:-1]
         dataList = json.loads(data)
         for item in dataList:
@@ -404,9 +404,10 @@ def testCrawlerQuality(countPartition , startDt , endDt):
                     print("mismatch" + "\t" + str(item)+"\t" + str(result))
 
 if __name__ == '__main__':
-    getfailUrl(err_url_path)
+    # getBXJGList()
+    # getfailUrl(err_url_path)
     # getAndsavePartitionDtDetail('B01451' , '2019-12-16')
-    getBsDtDetailList('2020-01-22' , '2020-01-23')
+    getBsDtDetailList('2020-02-27' , '2020-02-28')
 
 
     # testCrawlerCount(7,"2019-12-16","2019-12-20")

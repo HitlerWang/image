@@ -30,3 +30,19 @@ CREATE TABLE `partition_stock_detail` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `code_dx` (`hd_date`,`partition_code`,`stock_code`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3814 DEFAULT CHARSET=utf8 ;
+
+CREATE TABLE `agg_partition_stock_detail` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `hd_date` varchar(25) NOT NULL,
+  `partition_code` varchar(50) NOT NULL,
+  `stock_code` varchar(10) NOT NULL,
+  `stock_name` varchar(50) NOT NULL,
+  `avg_hold_sum_one` float(20,5) DEFAULT NULL,
+  `avg_hold_sum_three` float(20,5) DEFAULT NULL,
+  `avg_hold_sum_five` float(20,5) DEFAULT NULL,
+  `avg_hold_sum_ten` float(20,5) DEFAULT NULL,
+  `avg_hold_sum_thirty` float(20,5) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code_dx` (`hd_date`,`partition_code`,`stock_code`)
+) ENGINE=MyISAM AUTO_INCREMENT=3814 DEFAULT CHARSET=utf8 ;
+
