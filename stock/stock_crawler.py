@@ -227,6 +227,146 @@ def getRzRqDetailList(startDt , endDt):
     for code in getAllStock():
         getAndSaverzrqDetail(code)
 
+
+def getRzRqDetailByDt(startDt , endDt):
+    for dt in getDtList(startDt,endDt):
+        getAndSaverzrqDetailByDt(dt)
+
+
+def getAndSaverzrqDetailByDt(dt):
+    for i in range(100):
+        result_data = []
+        sess = requests.Session()
+        url = 'http://api.dataide.eastmoney.com/data/get_rzrq_ggmx?pageindex=' + str(i+1) + '&pagesize=500&orderby=rzjme&order=desc&date=' + dt + '&jsonp_callback=var%20njWHabsi=(x)&rt=52802785'
+        try:
+            startTime = time.time()
+            res = sess.get(url=url)
+            data = res.text.split('DLgtJLPl=')[1]
+            dataMap = json.loads(data)
+            dataList = dataMap.get('data')
+            for item in dataList:
+                try:
+                    tmp = {}
+                    timeArray = time.localtime(item.get('date')/1000)
+                    date = time.strftime("%Y-%m-%d", timeArray)
+                    tmp['hd_date']=date
+                    tmp['stock_code']=item.get('scode')
+                    tmp['stock_name']=item.get('secname')
+                    if item.get('close_price',0) is None:
+                        item['close_price'] = 0
+                    if item.get('zdf',0) is None:
+                        item['zdf'] = 0
+                    if item.get('rzye',0) is None:
+                        item['rzye'] = 0
+                    if item.get('rzyezb',0) is None:
+                        item['rzyezb'] = 0
+                    if item.get('rqye',0) is None:
+                        item['rqye'] = 0
+                    if item.get('rzrqye',0) is None:
+                        item['rzrqye'] = 0
+                    if item.get('rzrqyecz',0) is None:
+                        item['rzrqyecz'] = 0
+
+                    if item.get('rzmre',0) is None:
+                        item['rzmre'] = 0
+                    if item.get('rzche',0) is None:
+                        item['rzche'] = 0
+                    if item.get('rzjme',0) is None:
+                        item['rzjme'] = 0
+                    if item.get('rqmcl',0) is None:
+                        item['rqmcl'] = 0
+                    if item.get('rqchl',0) is None:
+                        item['rqchl'] = 0
+                    if item.get('rqjmg',0) is None:
+                        item['rqjmg'] = 0
+
+                    if item.get('rzmre3d',0) is None:
+                        item['rzmre3d'] = 0
+                    if item.get('rzche3d',0) is None:
+                        item['rzche3d'] = 0
+                    if item.get('rzjme3d',0) is None:
+                        item['rzjme3d'] = 0
+                    if item.get('rqmcl3d',0) is None:
+                        item['rqmcl3d'] = 0
+                    if item.get('rqchl3d',0) is None:
+                        item['rqchl3d'] = 0
+                    if item.get('rqjmg3d',0) is None:
+                        item['rqjmg3d'] = 0
+
+                    if item.get('rzmre5d',0) is None:
+                        item['rzmre5d'] = 0
+                    if item.get('rzche5d',0) is None:
+                        item['rzche5d'] = 0
+                    if item.get('rzjme5d',0) is None:
+                        item['rzjme5d'] = 0
+                    if item.get('rqmcl5d',0) is None:
+                        item['rqmcl5d'] = 0
+                    if item.get('rqchl5d',0) is None:
+                        item['rqchl5d'] = 0
+                    if item.get('rqjmg5d',0) is None:
+                        item['rqjmg5d'] = 0
+
+                    if item.get('rzmre10d',0) is None:
+                        item['rzmre10d'] = 0
+                    if item.get('rzche10d',0) is None:
+                        item['rzche10d'] = 0
+                    if item.get('rzjme10d',0) is None:
+                        item['rzjme10d'] = 0
+                    if item.get('rqmcl10d',0) is None:
+                        item['rqmcl10d'] = 0
+                    if item.get('rqchl10d',0) is None:
+                        item['rqchl10d'] = 0
+                    if item.get('rqjmg10d',0) is None:
+                        item['rqjmg10d'] = 0
+
+                    tmp['close_price']=str(round(item.get('close_price',0), 5))
+                    tmp['zdf']=str(round(item.get('zdf',0), 5))
+                    tmp['rz_remain_sum']=str(round(item.get('rzye',0), 5))
+                    tmp['rz_remain_sum_percent']=str(round(item.get('rzyezb',0), 5))
+                    tmp['rq_remain_sum']=str(round(item.get('rqye',0), 5))
+                    tmp['rq_margin']=str(round(item.get('rqyl',0), 5))
+                    tmp['rzrq_remain_sum']=str(round(item.get('rzrqye',0), 5))
+                    tmp['rzrq_remain_sum_margin']=str(round(item.get('rzrqyecz',0), 5))
+                    tmp['rz_buy_one']=str(round(item.get('rzmre',0), 5))
+                    tmp['rz_repay_one']=str(round(item.get('rzche',0), 5))
+                    tmp['rz_net_buy_one']=str(round(item.get('rzjme',0), 5))
+                    tmp['rq_sell_one']=str(round(item.get('rqmcl',0), 5))
+                    tmp['rq_repay_one']=str(round(item.get('rqchl',0), 5))
+                    tmp['rq_net_sell_one']=str(round(item.get('rqjmg',0), 5))
+                    tmp['rz_buy_three']=str(round(item.get('rzmre3d',0), 5))
+                    tmp['rz_repay_three']=str(round(item.get('rzche3d',0), 5))
+                    tmp['rz_net_buy_three']=str(round(item.get('rzjme3d',0), 5))
+                    tmp['rq_sell_three']=str(round(item.get('rqmcl3d',0), 5))
+                    tmp['rq_repay_three']=str(round(item.get('rqchl3d',0), 5))
+                    tmp['rq_net_sell_three']=str(round(item.get('rqjmg3d',0), 5))
+                    tmp['rz_buy_five']=str(round(item.get('rzmre5d',0), 5))
+                    tmp['rz_repay_five']=str(round(item.get('rzche5d',0), 5))
+                    tmp['rz_net_buy_five']=str(round(item.get('rzjme5d',0), 5))
+                    tmp['rq_sell_five']=str(round(item.get('rqmcl5d',0), 5))
+                    tmp['rq_repay_five']=str(round(item.get('rqchl5d',0), 5))
+                    tmp['rq_net_sell_five']=str(round(item.get('rqjmg5d',0), 5))
+                    tmp['rz_buy_ten']=str(round(item.get('rzmre10d',0), 5))
+                    tmp['rz_repay_ten']=str(round(item.get('rzche10d',0), 5))
+                    tmp['rz_net_buy_ten']=str(round(item.get('rzjme10d',0), 5))
+                    tmp['rq_sell_ten']=str(round(item.get('rqmcl10d',0), 5))
+                    tmp['rq_repay_ten']=str(round(item.get('rqchl10d',0), 5))
+                    tmp['rq_net_sell_ten']=str(round(item.get('rqjmg10d',0), 5))
+                    result_data.append(tmp)
+                except Exception as e:
+                    print(e)
+            saveRzRqStockDetail(result_data)
+            print(code + ' ' + str(i+1) + ' time : ' + str(time.time() - startTime))
+            if len(dataList) < 450:
+                print(code  + ' ' + str(i+1) + ' len : ' + str(len(dataList)))
+                return
+        except Exception as e:
+            traceback.print_exc()
+            f.write(url + '\n')
+            print(url)
+            print(e)
+
+
+
 def getAndSaverzrqDetail(code):
     for i in range(100):
         result_data = []
@@ -620,8 +760,8 @@ if __name__ == '__main__':
     # getBXJGList()
     # getfailUrl(err_url_path)
     # getAndsavePartitionDtDetail('B01451' , '2019-12-16')
-    # getBsDtDetailList('2020-03-06' , '2020-03-06')
-    getRzRqDetailList('2020-03-06' , '2020-03-06')
+    getBsDtDetailList('2020-03-09' , '2020-03-12')
+    # getRzRqDetailList('2020-03-06' , '2020-03-06')
 
     # testCrawlerCount(7,"2019-12-16","2019-12-20")
     # testCrawlerQuality(7,"2019-12-16","2019-12-20")
