@@ -204,8 +204,12 @@ def analyse_gg(code , startDate , endDate):
     for dt in getDtList(startDate , endDate):
         zc_res = analyse(stock_partition_zc_dt_sql , code , dt)
         jc_res = analyse(stock_partition_jc_dt_sql , code , dt)
-        if zc_res is None or  jc_res is None:
+        if zc_res is None and jc_res is None:
             continue
+        if zc_res is None :
+            zc_res = (0,0)
+        if jc_res is None:
+            jc_res = (0,0,'')
         print(code+"\t"+dt+"\t"+str(zc_res[1])+"\t-"+str(jc_res[1])+"\t"+str(jc_res[2]))
     print("\n")
 def analyse_gg_list(code_list , startDate , endDate):
@@ -252,19 +256,20 @@ def analyse_xuangu(startDate , endDate):
         print(str(i) + "\t" + zc_res[i][0] + "\t"+ str(zc_res[i][1]) +"\t"+ str(zc_res[i][2]) +"\t"+str(zc_res[i][3]) +"\t"+ jc_res[i][0] +"\t"+ jc_res[i][1]+"\t"+ str(jc_res[i][2]) + "\t-"+ str(jc_res[i][3]) )
     pass
 
+def analyse_me(an_start , an_end , start_date , end_date):
+    analyse_gg_list(["600489","601766","600398","600050","600483"],"2019-12-31", end_date)
+    analyse_gg_list(["002372","002573","002419","600895","600216","002156","600155","601005","002482","601985","000717","000959"],"2019-12-31", end_date)
+    analyse_hq()
+    analyse_gg_xuangu_all(an_start, an_end , start_date, end_date)
 
 
 if __name__ == '__main__':
-    analyse_gg_list(["600489","601766","600398"],"2019-12-31", "2020-03-13")
-    print("\n")
-    analyse_gg_list(["002372","002573","002419","600895","600216","002156","600155","601005","002482","601985","000717"],"2019-12-31", "2020-03-13")
-    print("\n")
-    analyse_hq()
-    analyse_gg_xuangu_all("2020-03-09", "2020-03-13" , "2019-12-31", "2020-03-13" )
+    analyse_me("2020-03-19","2020-03-20" , "2019-12-31" , "2020-03-19" )
 
+    # agg_partition_stock_all("2020-03-16")
     # for item in ["02","03","06","07","08","09","10","13","14","15","16","17","20","21","22","23"]:
     # agg_partition_stock_all("2020-03-06")
     # for item in ["04","05","06","07","10","11","12","13","14","17","18","19","20","21","24","25","26","27","28"]:
     #     agg_partition_stock_all("2020-02-"+ item)
-    # for item in ["09","10","11","12","13"]:
+    # for item in ["17","18","19","20"]:
     #     agg_partition_stock_all("2020-03-"+ item)

@@ -758,10 +758,10 @@ def testRzrq(code , dt):
 
 if __name__ == '__main__':
     # getBXJGList()
-    # getfailUrl(err_url_path)
+    getfailUrl(err_url_path)
     # getAndsavePartitionDtDetail('B01451' , '2019-12-16')
-    # getBsDtDetailList('2020-03-13' , '2020-03-13')
-    getRzRqDetailList()
+    # getBsDtDetailList('2020-03-19' , '2020-03-20')
+    # getRzRqDetailList()
 
     # testCrawlerCount(7,"2019-12-16","2019-12-20")
     # testCrawlerQuality(7,"2019-12-16","2019-12-20")
