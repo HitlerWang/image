@@ -224,7 +224,11 @@ def bsgg():
     file.save(filePath)
 
 def getRzRqDetailList():
+    i = 0
     for code in getAllStock():
+        i = i + 1
+        print("start i = ")
+        print(i)
         getAndSaverzrqDetail(code)
 
 
@@ -758,10 +762,10 @@ def testRzrq(code , dt):
 
 if __name__ == '__main__':
     # getBXJGList()
-    getfailUrl(err_url_path)
+    # getfailUrl(err_url_path)
     # getAndsavePartitionDtDetail('B01451' , '2019-12-16')
-    # getBsDtDetailList('2020-03-19' , '2020-03-20')
-    # getRzRqDetailList()
+    # getBsDtDetailList('2020-04-03','2020-04-03')
+    getRzRqDetailList()
 
     # testCrawlerCount(7,"2019-12-16","2019-12-20")
     # testCrawlerQuality(7,"2019-12-16","2019-12-20")
