@@ -257,8 +257,19 @@ def analyse_xuangu(startDate , endDate):
     pass
 
 def analyse_me(an_start , an_end , start_date , end_date):
-    analyse_gg_list(["600489","601766","600398","600050","600483"],"2019-12-31", end_date)
-    analyse_gg_list(["002372","002573","002419","600895","600216","002156","600155","601005","002482","601985","000717","000959"],"2019-12-31", end_date)
+    # has buy
+    analyse_gg_list(["600489","601766","600398","600111"],"2019-12-31", end_date)
+
+    # last study
+    analyse_gg_list(["002506", "601162","000959","000869"], "2019-12-31", end_date)
+
+    # bo li
+    analyse_gg_list(["000725", "000100"], "2019-12-31", end_date)
+
+    # teach
+    analyse_gg_list(["600446", "300085", "601519","002797","603000","600476"], "2019-12-31", end_date)
+
+    analyse_gg_list([""],"2019-12-31", end_date)
     analyse_hq()
     analyse_gg_xuangu_all(an_start, an_end , start_date, end_date)
 
