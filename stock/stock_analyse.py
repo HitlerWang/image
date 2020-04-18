@@ -264,12 +264,12 @@ def analyse_me(an_start , an_end , start_date , end_date):
 
 
 if __name__ == '__main__':
-    analyse_me("2020-03-19","2020-03-20" , "2019-12-31" , "2020-03-19" )
+    analyse_me("2020-04-14","2020-04-17" , "2019-12-31" , "2020-04-17" )
 
     # agg_partition_stock_all("2020-03-16")
     # for item in ["02","03","06","07","08","09","10","13","14","15","16","17","20","21","22","23"]:
     # agg_partition_stock_all("2020-03-06")
     # for item in ["04","05","06","07","10","11","12","13","14","17","18","19","20","21","24","25","26","27","28"]:
     #     agg_partition_stock_all("2020-02-"+ item)
-    # for item in ["17","18","19","20"]:
-    #     agg_partition_stock_all("2020-03-"+ item)
+    # for item in ["14","15","16","17"]:
+    #     agg_partition_stock_all("2020-04-"+ item)
