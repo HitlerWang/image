@@ -10,7 +10,7 @@ import random
 from lxml import etree
 from stock import mysql_dao
 
-err_url_path = '/Users/shanwang/Desktop/err_url.text'
+err_url_path = '/Users/wangshan/Desktop/err_url.text'
 
 f = open(err_url_path, "a+")
 
@@ -764,8 +764,8 @@ if __name__ == '__main__':
     # getBXJGList()
     # getfailUrl(err_url_path)
     # getAndsavePartitionDtDetail('B01451' , '2019-12-16')
-    # getBsDtDetailList('2020-04-03','2020-04-03')
-    getRzRqDetailList()
+    getBsDtDetailList('2020-04-27','2020-04-30')
+    # getRzRqDetailList()
 
     # testCrawlerCount(7,"2019-12-16","2019-12-20")
     # testCrawlerQuality(7,"2019-12-16","2019-12-20")
