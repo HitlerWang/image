@@ -9,6 +9,19 @@ import requests
 import datetime
 
 
+aa = '''
+select a.stock_code , a.stock_name , (count_zc-count_com)/count_zc as resulta
+from 
+(select stock_code , stock_name , max(count_zc) as count_zc from agg_result where hd_date>'2020-01-02' and hd_date<'2020-02-09' group by stock_code , stock_name )
+as a
+INNER JOIN
+(select stock_code , stock_name , max(count_zc) as count_com from agg_result where hd_date>'2020-04-27' and hd_date<'2020-04-29' group by stock_code , stock_name )
+as b
+on a.stock_code=b.stock_code
+order by 3 desc
+
+'''
+
 def testxpath():
     res=requests.get('http://www.w3school.com.cn/')
     tree=etree.HTML(res.content)

@@ -10,8 +10,32 @@ from stock import utils
 from stock.mysql_dao import queryBySql , findOneBySql
 
 
-query_hold_sql = 'select hold_sum from partition_stock_detail where partition_code="{partition_code}" and  stock_code="{stock_code}" and hd_date<="{dt}T00:00:00" order by hd_date desc'
+agg_result_sql = '''
+select a.stock_code , a.stock_name ,1, (count_zc-count_com)/count_zc as resulta
+from 
+(select stock_code , stock_name , avg(count_zc) as count_zc from agg_result where hd_date>="{an_start}" and hd_date<="{an_end}" group by stock_code , stock_name )
+as a
+INNER JOIN
+(select stock_code , stock_name , avg(count_zc) as count_com from agg_result where hd_date>="{com_start}" and hd_date<="{com_end}" group by stock_code , stock_name )
+as b
+on a.stock_code=b.stock_code
+order by 4 desc limit 40
 
+'''
+
+rzrq_sql = '''
+select a.stock_code , a.stock_name ,1, (count_zc-count_com)/count_zc as resulta
+from 
+(select stock_code , stock_name , avg(rzrq_remain_sum) as count_zc from rzrq_stock_detail where hd_date>="{an_start}" and hd_date<="{an_end}" group by stock_code , stock_name )
+as a
+INNER JOIN
+(select stock_code , stock_name , avg(rzrq_remain_sum) as count_com from rzrq_stock_detail where hd_date>="{com_start}" and hd_date<="{com_end}" group by stock_code , stock_name )
+as b
+on a.stock_code=b.stock_code
+order by 4 desc limit 40
+'''
+
+query_hold_sql = 'select hold_sum from partition_stock_detail where partition_code="{partition_code}" and  stock_code="{stock_code}" and hd_date<="{dt}T00:00:00" order by hd_date desc'
 
 stock_partition_zc_dt_sql='select stock_code,count(partition_code) , stock_name  from agg_partition_stock_detail where hd_date="{dt}" and stock_code="{code}" and avg_hold_sum_one>avg_hold_sum_three and avg_hold_sum_three>avg_hold_sum_five and avg_hold_sum_five>avg_hold_sum_ten and avg_hold_sum_ten>avg_hold_sum_thirty group by stock_code,stock_name'
 
@@ -176,6 +200,24 @@ def xuangu_analyse(sqlTemp , start_dt , end_dt):
     db.close()
     return resp
 
+def agg_result_xuangu_analyse(sqlTemp , an_start , an_end , com_start , com_end):
+    resp = []
+    # 打开数据库连接
+    db = pymysql.connect("localhost", "root", "wangshan", "stock")
+    # 使用 cursor() 方法创建一个游标对象 cursor
+    cursor = db.cursor()
+    sql = sqlTemp.format(an_start=an_start , an_end = an_end , com_start=com_start , com_end = com_end )
+    print(sql)
+    # 执行sql语句
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    for item in results:
+        resp.append(item)
+    # 关闭数据库连接
+    db.close()
+    return resp
+
+
 def analyse(sqlTemp, code , dt):
     # 打开数据库连接
     db = pymysql.connect("localhost", "root", "wangshan", "stock")
@@ -230,6 +272,30 @@ def analyse_xuanguall(startDate , endDate):
         print(str(i) + "\t" + zc_res[i][0] + "\t"+ str(zc_res[i][1]) +"\t"+ str(zc_res[i][2]) +"\t"+str(zc_res[i][3]) +"\t"+ jc_res[i][0] +"\t"+ jc_res[i][1]+"\t"+ str(jc_res[i][2]) + "\t-"+ str(jc_res[i][3]) )
     pass
 
+
+def analyse_agg_result_gg_xuangu_all(an_start, an_end , com_start , com_end , show_start, show_end):
+    zc_res = agg_result_xuangu_analyse(agg_result_sql , an_start , an_end , com_start , com_end)
+    zc_gg = []
+    for i in range(len(zc_res)):
+        print(str(i) + "\t" + zc_res[i][0] + "\t"+ str(zc_res[i][1]) +"\t"+ str(zc_res[i][2]) +"\t"+str(zc_res[i][3]))
+        zc_gg.append(zc_res[i][0])
+    print("增持")
+    for item in zc_gg:
+        analyse_gg(item , show_start , show_end)
+
+
+def analyse_rzrq_gg_xuangu_all(an_start, an_end , com_start , com_end , show_start, show_end):
+    zc_res = agg_result_xuangu_analyse(rzrq_sql , an_start , an_end , com_start , com_end)
+    zc_gg = []
+    for i in range(len(zc_res)):
+        print(str(i) + "\t" + zc_res[i][0] + "\t"+ str(zc_res[i][1]) +"\t"+ str(zc_res[i][2]) +"\t"+str(zc_res[i][3]))
+        zc_gg.append(zc_res[i][0])
+    print("增持")
+    for item in zc_gg:
+        analyse_gg(item , show_start , show_end)
+
+
+
 def analyse_gg_xuangu_all(startDate , endDate , an_startDate , an_endDate):
     zc_res = xuangu_analyse(xgall_zc_sql , startDate , endDate)
     jc_res = xuangu_analyse(xgall_jc_sql , startDate , endDate)
@@ -256,31 +322,66 @@ def analyse_xuangu(startDate , endDate):
         print(str(i) + "\t" + zc_res[i][0] + "\t"+ str(zc_res[i][1]) +"\t"+ str(zc_res[i][2]) +"\t"+str(zc_res[i][3]) +"\t"+ jc_res[i][0] +"\t"+ jc_res[i][1]+"\t"+ str(jc_res[i][2]) + "\t-"+ str(jc_res[i][3]) )
     pass
 
-def analyse_me(an_start , an_end , start_date , end_date):
+def analyse_zhengti(aggr_start , aggr_end , compar_start , compar_end , show_start , show_end):
+
+
+
+    pass
+
+def analyse_me(start_date , end_date):
     # has buy
-    analyse_gg_list(["600489","601766","600398","600111"],"2019-12-31", end_date)
+    analyse_gg_list(["600489","601766","600398"],start_date, end_date)
 
     # last study
-    analyse_gg_list(["002506", "601162","000959","000869"], "2019-12-31", end_date)
+    analyse_gg_list(["601162","000869"], start_date, end_date)
 
     # bo li
-    analyse_gg_list(["000725", "000100"], "2019-12-31", end_date)
+    analyse_gg_list(["000725", "000100"], start_date, end_date)
 
     # teach
-    analyse_gg_list(["600446", "300085", "601519","002797","603000","600476","600624"], "2019-12-31", end_date)
+    analyse_gg_list(["600446", "300085", "601519","002797","603000","600476","600624"], start_date, end_date)
 
-    analyse_gg_list([""],"2019-12-31", end_date)
-    analyse_hq()
-    analyse_gg_xuangu_all(an_start, an_end , start_date, end_date)
+    # 5.8
+    analyse_gg_list(["000625","600499","300072","002258","300274"],start_date, end_date)
 
+    # gege
+    analyse_gg_list(["603858","603360","300559","300638","300699","603712","603983","002832","603587","002867"],start_date, end_date)
+    analyse_gg_list(
+        ["603218", "603601", "603606", "600143", "002223", "002353", "002568", "002367", "002030"],
+        start_date, end_date)
+
+
+    # 5.24
+    analyse_gg_list(["002317","601567"],start_date, end_date)
+
+    # 5.31
+    analyse_gg_list(["002818","002444","000600","600373"],start_date, end_date)
+
+    # 6.7
+    analyse_gg_list(["603327","002408","603466","000046"],start_date, end_date)
+
+    # 6.13
+    analyse_gg_list(["000027","002080","002625","600557"],start_date, end_date)
+
+
+    # 6.13
+    analyse_gg_list(["600326","002302","002254","600089"],start_date, end_date)
 
 if __name__ == '__main__':
-    analyse_me("2020-04-20","2020-04-24" , "2019-12-31" , "2020-04-24" )
+    # analyse_me("2019-12-31" , "2020-09-04")
+
+    analyse_gg_list(
+        ["603218", "603601", "603606", "600143", "002223", "002353", "002568", "002367", "002030"],
+        "2019-12-31" , "2020-10-09")
+    # aggr result
+    analyse_agg_result_gg_xuangu_all("2020-09-29","2020-10-09" , "2020-03-01" , "2020-07-15" ,"2019-12-31" , "2020-10-09")
+    #  rzrq result
+    # analyse_rzrq_gg_xuangu_all("2020-05-06", "2020-05-08", "2019-12-31", "2020-04-20", "2019-12-31", "2020-05-08")
 
     # agg_partition_stock_all("2020-03-16")
     # for item in ["02","03","06","07","08","09","10","13","14","15","16","17","20","21","22","23"]:
     # agg_partition_stock_all("2020-03-06")
     # for item in ["04","05","06","07","10","11","12","13","14","17","18","19","20","21","24","25","26","27","28"]:
     #     agg_partition_stock_all("2020-02-"+ item)
-    # for item in ["20","21","22","23","24"]:
-    #     agg_partition_stock_all("2020-04-"+ item)
+    # for item in ["09"]:
+    #     agg_partition_stock_all("2020-10-"+ item)

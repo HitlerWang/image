@@ -245,7 +245,7 @@ def getAndSaverzrqDetailByDt(dt):
         try:
             startTime = time.time()
             res = sess.get(url=url)
-            data = res.text.split('DLgtJLPl=')[1]
+            data = res.text.split('njWHabsi=')[1]
             dataMap = json.loads(data)
             dataList = dataMap.get('data')
             for item in dataList:
@@ -358,10 +358,11 @@ def getAndSaverzrqDetailByDt(dt):
                     result_data.append(tmp)
                 except Exception as e:
                     print(e)
+            # print(result_data)
             saveRzRqStockDetail(result_data)
-            print(code + ' ' + str(i+1) + ' time : ' + str(time.time() - startTime))
+            print(dt + ' ' + str(i+1) + ' time : ' + str(time.time() - startTime))
             if len(dataList) < 450:
-                print(code  + ' ' + str(i+1) + ' len : ' + str(len(dataList)))
+                print(dt  + ' ' + str(i+1) + ' len : ' + str(len(dataList)))
                 return
         except Exception as e:
             traceback.print_exc()
@@ -762,10 +763,9 @@ def testRzrq(code , dt):
 
 if __name__ == '__main__':
     # getBXJGList()
-    # getfailUrl(err_url_path)
-    # getAndsavePartitionDtDetail('B01451' , '2019-12-16')
-    getBsDtDetailList('2020-04-27','2020-04-30')
-    # getRzRqDetailList()
+    getfailUrl(err_url_path)
+    # getBsDtDetailList('2020-10-09','2020-10-09')
+    # getRzRqDetailByDt('2020-07-13','2020-07-17')
 
     # testCrawlerCount(7,"2019-12-16","2019-12-20")
     # testCrawlerQuality(7,"2019-12-16","2019-12-20")
